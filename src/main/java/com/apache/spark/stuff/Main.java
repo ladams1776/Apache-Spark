@@ -57,11 +57,16 @@ public class Main {
     students.filter(subject.equalTo("Modern Art").and(year.equalTo("2007"))).show();
 
     // spark functions, 2 where predicates
-    students.filter(col("subject").equalTo("Modern Art").and(col("year").equalTo("2007"))).show();
+    students
+        .filter(col("subject").equalTo("Modern Art")
+            .and(col("year").equalTo("2007")))
+        .show();
 
     // take the raw dataset from students and create a table in memory, with any name that we like
     students.createOrReplaceTempView("students_view");
-    sparkSession.sql("select score, year from students_view where subject='French' order by score desc").show();
+    sparkSession
+        .sql("select score, year from students_view where subject='French' order by score desc")
+        .show();
 
     sparkSession.close();
   }
