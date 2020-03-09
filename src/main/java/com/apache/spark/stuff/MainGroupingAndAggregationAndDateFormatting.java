@@ -61,7 +61,6 @@ public class MainGroupingAndAggregationAndDateFormatting {
     //@TODO: This is not working atm. Got to shelf it for the moment.
     Dataset<Row> sql = sparkSession.sql("select level, date_format(datetime, 'y') from logging_table");
 
-
     sql.show();
     sparkSession.close();
   }
