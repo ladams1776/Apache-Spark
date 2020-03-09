@@ -42,10 +42,10 @@ public class MainGroupingAndAggregationAndDateFormatting {
 
     final List<Row> inMemory = new ArrayList<>();
 
-    inMemory.add(RowFactory.create("WARN", "20/03/09 09:11:36"));
-    inMemory.add(RowFactory.create("FATAL", "20/03/09 09:11:36"));
-    inMemory.add(RowFactory.create("INFO", "20/03/09 09:11:36"));
-    inMemory.add(RowFactory.create("FATAL", "20/03/09 09:11:36"));
+    inMemory.add(RowFactory.create("WARN", "2016-12-31 04:19:32"));
+    inMemory.add(RowFactory.create("FATAL", "2016-12-31 04:19:32"));
+    inMemory.add(RowFactory.create("INFO", "2016-12-31 04:19:32"));
+    inMemory.add(RowFactory.create("FATAL", "2016-12-31 04:19:32"));
 
     final StructField[] fields = new StructField[]{
         new StructField("level", DataTypes.StringType, false, Metadata.empty()),
@@ -59,7 +59,13 @@ public class MainGroupingAndAggregationAndDateFormatting {
     dataset.createOrReplaceTempView("logging_table");
 
     //@TODO: This is not working atm. Got to shelf it for the moment.
-    Dataset<Row> sql = sparkSession.sql("select level, date_format(datetime, 'y') from logging_table");
+    // Formatting
+//    Dataset<Row> sql = sparkSession.sql("select level, date_format(datetime, 'yyyy') from logging_table");
+    // Making a column alias.
+//    Dataset<Row> sql = sparkSession.sql("select level, date_format(datetime, 'MM') as month from logging_table");
+
+    // Get the number of warnings
+    Dataset<Row> sql = sparkSession.sql("select level, date_format(datetime, 'MM') as month, count(1) as total from logging_table group by level, month");
 
     sql.show();
     sparkSession.close();
