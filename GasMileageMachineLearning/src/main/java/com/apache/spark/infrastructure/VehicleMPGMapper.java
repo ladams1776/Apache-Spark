@@ -9,6 +9,7 @@ import static com.apache.spark.domain.VehicleCsvPositions.MODELYEAR;
 import static com.apache.spark.domain.VehicleCsvPositions.MPG;
 import static com.apache.spark.domain.VehicleCsvPositions.NAME;
 import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
+import static java.lang.Double.valueOf;
 
 import java.util.function.BiFunction;
 import org.apache.spark.api.java.JavaRDD;
@@ -24,17 +25,17 @@ public class VehicleMPGMapper implements
     return row -> {
       final Double horsePower = row.getString(HORSE_POWER).equals("?")
           ? horsePowerFiller.value()
-          : Double.valueOf(row.getString(HORSE_POWER));
+          : valueOf(row.getString(HORSE_POWER));
 
       return RowFactory.create(
-          Double.valueOf(row.getString(MPG)),
-          Double.valueOf(row.getString(CYLINDERS)),
-          Double.valueOf(row.getString(DISPLACEMENT)),
+          valueOf(row.getString(MPG)),
+          valueOf(row.getString(CYLINDERS)),
+          valueOf(row.getString(DISPLACEMENT)),
           horsePower,
-          Double.valueOf(row.getString(WEIGHT)),
-          Double.valueOf(row.getString(ACCELERATION)),
-          Double.valueOf(row.getString(MODELYEAR)),
-          Double.valueOf(row.getString(NAME))
+          valueOf(row.getString(WEIGHT)),
+          valueOf(row.getString(ACCELERATION)),
+          valueOf(row.getString(MODELYEAR)),
+          row.getString(NAME)
       );
     };
   }

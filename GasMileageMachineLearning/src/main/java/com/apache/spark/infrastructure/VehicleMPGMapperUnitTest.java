@@ -25,7 +25,7 @@ public class VehicleMPGMapperUnitTest {
   public void apply_withNodirtyDataInHorsePower_willCorrectHorsePower() throws Exception {
     final Row row = RowFactory.create(
         "18", "8", "307", "130", "3504", "12",
-        "70", "202");
+        "70", "Chevy");
 
     Function<Row, Row> actual = new VehicleMPGMapper()
         .apply((Broadcast<Double>) mock(Broadcast.class));
@@ -38,7 +38,7 @@ public class VehicleMPGMapperUnitTest {
     assertEquals(Optional.of(3504.0), Optional.of(call.getDouble(WEIGHT)));
     assertEquals(Optional.of(12.0), Optional.of(call.getDouble(ACCELERATION)));
     assertEquals(Optional.of(70.0), Optional.of(call.getDouble(MODELYEAR)));
-    assertEquals(Optional.of(202.0), Optional.of(call.getDouble(NAME)));
+    assertEquals(Optional.of("Chevy"), Optional.of(call.getString(NAME)));
   }
 
   @Test
@@ -48,7 +48,7 @@ public class VehicleMPGMapperUnitTest {
     Mockito.when(mockBroadcast.value()).thenReturn(expected);
     final Row row = RowFactory.create(
         "18", "8", "307", "?", "3504", "12",
-        "70", "202");
+        "70", "Chevy");
 
     Function<Row, Row> actual = new VehicleMPGMapper().apply(mockBroadcast);
     Row call = actual.call(row);
@@ -60,6 +60,6 @@ public class VehicleMPGMapperUnitTest {
     assertEquals(Optional.of(3504.0), Optional.of(call.getDouble(WEIGHT)));
     assertEquals(Optional.of(12.0), Optional.of(call.getDouble(ACCELERATION)));
     assertEquals(Optional.of(70.0), Optional.of(call.getDouble(MODELYEAR)));
-    assertEquals(Optional.of(202.0), Optional.of(call.getDouble(NAME)));
+    assertEquals(Optional.of("Chevy"), Optional.of(call.getString(NAME)));
   }
 }

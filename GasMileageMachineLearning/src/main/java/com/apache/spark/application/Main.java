@@ -11,6 +11,7 @@ import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
 import static org.apache.log4j.Level.ERROR;
 import static org.apache.log4j.Logger.getLogger;
 import static org.apache.spark.sql.types.DataTypes.DoubleType;
+import static org.apache.spark.sql.types.DataTypes.StringType;
 import static org.apache.spark.sql.types.DataTypes.createStructField;
 import static org.apache.spark.sql.types.DataTypes.createStructType;
 
@@ -31,6 +32,7 @@ public class Main {
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
   private final static VehicleMPGMapper vehicleMPGMapper = new VehicleMPGMapper();
   private final static Double HORSE_POWER_DEFAULT = 80.0;
+
   public static void main(String... args) {
     getLogger("org").setLevel(ERROR);
     getLogger("akka").setLevel(ERROR);
@@ -47,17 +49,19 @@ public class Main {
     autoDF.show(5);
     autoDF.printSchema();
 
-    // Cleanse Data
+    // ************************* Cleanse Data ************************** //
+
     // Convert all data types as double; change missing values to standard ones.
     final StructType autoSchema = createStructType(
-        new org.apache.spark.sql.types.StructField[]{
+        new StructField[]{
             createStructField("MPG", DoubleType, false),
             createStructField("CYLINDERS", DoubleType, false),
+            createStructField("DISPLACEMENT", DoubleType, false),
             createStructField("HP", DoubleType, false),
             createStructField("WEIGHT", DoubleType, false),
             createStructField("ACCELERATION", DoubleType, false),
             createStructField("MODELYEAR", DoubleType, false),
-            createStructField("NAME", DoubleType, false),
+            createStructField("NAME", StringType, false),
         });
 
     final Broadcast<Double> horsePowerFiller = getBroadCast(spContext, HORSE_POWER_DEFAULT);
@@ -65,9 +69,14 @@ public class Main {
     // Change data frame back to RDD, so we can stub in horsePowerFiller for values with '?'
     // This is the actual cleaning of Data.
     final JavaRDD<Row> rdd1 = autoDF.toJavaRDD().repartition(2);
-    rdd1.map(vehicleMPGMapper.apply(horsePowerFiller));
+    final JavaRDD<Row> cleanedRDD = rdd1.map(vehicleMPGMapper.apply(horsePowerFiller));
 
+    // Create Data Frame back.
+    Dataset<Row> autoCleaned = sparkSession.createDataFrame(cleanedRDD, autoSchema);
+    System.out.println("Transformed Data : ");
+    autoCleaned.show(5);
 
+    // ************************* Analyze Data ************************** //
 
   }
 
