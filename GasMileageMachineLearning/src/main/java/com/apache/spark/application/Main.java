@@ -30,7 +30,7 @@ public class Main {
 
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
   private final static VehicleMPGMapper vehicleMPGMapper = new VehicleMPGMapper();
-
+  private final static Double HORSE_POWER_DEFAULT = 80.0;
   public static void main(String... args) {
     getLogger("org").setLevel(ERROR);
     getLogger("akka").setLevel(ERROR);
@@ -60,12 +60,14 @@ public class Main {
             createStructField("NAME", DoubleType, false),
         });
 
-    final Broadcast<Double> horsePowerFiller = getBroadCast(spContext, 80.0);
+    final Broadcast<Double> horsePowerFiller = getBroadCast(spContext, HORSE_POWER_DEFAULT);
 
     // Change data frame back to RDD, so we can stub in horsePowerFiller for values with '?'
     // This is the actual cleaning of Data.
     final JavaRDD<Row> rdd1 = autoDF.toJavaRDD().repartition(2);
     rdd1.map(vehicleMPGMapper.apply(horsePowerFiller));
+
+
 
   }
 
