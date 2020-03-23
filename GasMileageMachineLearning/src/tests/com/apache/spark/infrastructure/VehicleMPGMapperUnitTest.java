@@ -11,6 +11,7 @@ import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import com.apache.spark.infrastructure.VehicleMPGMapper;
 import java.util.Optional;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
