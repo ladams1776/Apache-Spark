@@ -30,7 +30,11 @@ public class ReportFixture {
           createStructField("NAME", StringType, false),
       });
 
-  public final static Row row = RowFactory.create(
+  public final static StructType AUTOMOBILE_MPG_STRUCT = createStructType(
+      new StructField[]{MPG_STRING_STRUCT_FIELD});
+
+
+  public final static Row AUTOMOBILE_ROW = RowFactory.create(
       "18", "8", "307", "130", "3504", "12",
       "70", "Chevy");
 }
