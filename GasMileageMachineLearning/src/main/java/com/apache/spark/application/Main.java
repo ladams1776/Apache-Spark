@@ -16,7 +16,10 @@ import com.apache.spark.infrastructure.reports.SystemPrintCorrelationMPGReport;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
+import org.apache.spark.ml.evaluation.RegressionEvaluator;
 import org.apache.spark.ml.feature.LabeledPoint;
+import org.apache.spark.ml.regression.LinearRegression;
+import org.apache.spark.ml.regression.LinearRegressionModel;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -35,11 +38,12 @@ public class Main {
     getLogger("org").setLevel(ERROR);
     getLogger("akka").setLevel(ERROR);
 
+    // ******************** Setup ************************************* //
     System.out.println("Working");
     final JavaSparkContext spContext = sparkConnection.getSpContext();
     final SparkSession sparkSession = sparkConnection.getSparkSession();
 
-    // Load the data
+    // ******************** Load the data ***************************** //
     final Dataset<Row> autoDF = sparkSession.read()
         .option("header", "true")
         .csv("src/main/resources/auto-miles-per-gallon.csv");
@@ -88,7 +92,54 @@ public class Main {
     final Dataset<Row> autoLabeledPoint = sparkSession
         .createDataFrame(labelPoint, LabeledPoint.class);
 
-    autoLabeledPoint.show();
+    autoLabeledPoint.show(5);
+
+    // Split the data into training and test sets (10% held out for testing, 90% for training).
+    final Dataset<Row>[] splits = autoLabeledPoint.randomSplit(new double[]{0.9, 0.1});
+
+    final Dataset<Row> trainingData = splits[0];
+    final Dataset<Row> testingData = splits[1];
+
+    // ************************* Perform Machine Learning **************** //
+
+    // create the LinearRegression model
+    final LinearRegression linearRegression = new LinearRegression();
+    // create the model
+    final LinearRegressionModel linearRegressionModel = linearRegression.fit(trainingData);
+
+    // print out coefficients and intercept for Linear Regression
+    System.out.println(
+        "Coefficients: " + linearRegressionModel.coefficients() + " Intercept: "
+            + linearRegressionModel.intercept());
+
+    // predict on the test data
+    final Dataset<Row> predictions = linearRegressionModel.transform(testingData);
+
+    // view results
+    predictions.select("label", "prediction", "features").show();
+
+    // Compute R2 for the model on test data.
+    final RegressionEvaluator regressionEvaluator = new RegressionEvaluator()
+        .setLabelCol("label")
+        .setPredictionCol("prediction")
+        .setMetricName("r2");
+
+    final double evaluate = regressionEvaluator.evaluate(predictions);
+    System.out.println("R2 on test data = " + evaluate);
+
+    hold();
+
+  }
+
+  public static void hold() {
+    while (true) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
