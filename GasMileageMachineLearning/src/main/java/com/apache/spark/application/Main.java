@@ -1,13 +1,5 @@
 package com.apache.spark.application;
 
-import static com.apache.spark.domain.VehicleCsvPositions.ACCELERATION;
-import static com.apache.spark.domain.VehicleCsvPositions.CYLINDERS;
-import static com.apache.spark.domain.VehicleCsvPositions.DISPLACEMENT;
-import static com.apache.spark.domain.VehicleCsvPositions.HORSE_POWER;
-import static com.apache.spark.domain.VehicleCsvPositions.MODELYEAR;
-import static com.apache.spark.domain.VehicleCsvPositions.MPG;
-import static com.apache.spark.domain.VehicleCsvPositions.NAME;
-import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
 import static org.apache.log4j.Level.ERROR;
 import static org.apache.log4j.Logger.getLogger;
 import static org.apache.spark.sql.types.DataTypes.DoubleType;
@@ -15,15 +7,19 @@ import static org.apache.spark.sql.types.DataTypes.StringType;
 import static org.apache.spark.sql.types.DataTypes.createStructField;
 import static org.apache.spark.sql.types.DataTypes.createStructType;
 
-import com.apache.spark.domain.*;
+import com.apache.spark.domain.reports.CorrelationMPGReport;
+import com.apache.spark.infrastructure.LabelPointAssembler;
 import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.VehicleMPGMapper;
-import org.apache.spark.SparkContext;
+import com.apache.spark.infrastructure.reports.SystemPrintCorrelationMPGReport;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
-import org.apache.spark.sql.*;
+import org.apache.spark.ml.feature.LabeledPoint;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
@@ -31,6 +27,8 @@ public class Main {
 
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
   private final static VehicleMPGMapper vehicleMPGMapper = new VehicleMPGMapper();
+  private final static LabelPointAssembler labelPointAssembler = new LabelPointAssembler();
+  private final static CorrelationMPGReport<StructType, Dataset<Row>> mpgCorrelationReport = new SystemPrintCorrelationMPGReport();
   private final static Double HORSE_POWER_DEFAULT = 80.0;
 
   public static void main(String... args) {
@@ -72,12 +70,25 @@ public class Main {
     final JavaRDD<Row> cleanedRDD = rdd1.map(vehicleMPGMapper.apply(horsePowerFiller));
 
     // Create Data Frame back.
-    Dataset<Row> autoCleaned = sparkSession.createDataFrame(cleanedRDD, autoSchema);
+    Dataset<Row> autoCleansed = sparkSession.createDataFrame(cleanedRDD, autoSchema);
     System.out.println("Transformed Data : ");
-    autoCleaned.show(5);
+    autoCleansed.show(5);
 
     // ************************* Analyze Data ************************** //
 
+    // Perform correlation analysis
+    mpgCorrelationReport.report(autoSchema, autoCleansed);
+
+    // ************************* Prepare for Machine Learning **************** //
+    // convert data to labeled Point structure
+    final JavaRDD<Row> repartitionedAutoCleansed = autoCleansed.toJavaRDD().repartition(2);
+
+    final JavaRDD<LabeledPoint> labelPoint = labelPointAssembler.apply(repartitionedAutoCleansed);
+
+    final Dataset<Row> autoLabeledPoint = sparkSession
+        .createDataFrame(labelPoint, LabeledPoint.class);
+
+    autoLabeledPoint.show();
   }
 
   /**
