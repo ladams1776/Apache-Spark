@@ -6,6 +6,8 @@ import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.reports.filters.EverythingButStringTypesFilter;
 import java.util.Arrays;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.ml.feature.StringIndexer;
@@ -25,7 +27,9 @@ public class Main_DecisionTree {
   private static final JavaSparkContext sparkContext = sparkConnection.getSpContext();
 
   public static void main(String[] args) {
-    System.out.println("Working");
+    Logger.getLogger("org").setLevel(Level.ERROR);
+    Logger.getLogger("akka").setLevel(Level.ERROR);
+    System.out.println("is Working");
 
     final Dataset<Row> iris = sparkSession.read()
         .option("header", "true")
