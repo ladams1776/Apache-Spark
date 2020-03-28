@@ -51,6 +51,7 @@ public class Main_DecisionTree {
     final Dataset<Row> cleanedIris = cleanseData(iris, irisSchema);
     // Analyze the data
     analyzeData(cleanedIris, irisSchema);
+    // Prepare for Machine Learning.
 
 
   }
@@ -84,6 +85,8 @@ public class Main_DecisionTree {
 
     final StringIndexerModel siModel = indexer.fit(cleanedIris);
     final Dataset<Row> indexedIris = siModel.transform(cleanedIris);
+    //@TODO: What are we checking here again? I believe we are grouping The species together to get a count,
+    //@TODO: Can't remember what the 0.0, 2.0, and 1.0 values are atm.
     indexedIris.groupBy(col("SPECIES"), col("IND_SPECIES")).count().show();
 
     System.out.println("Correlation between feature variable fields and the target variable field");
