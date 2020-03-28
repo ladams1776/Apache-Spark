@@ -53,7 +53,6 @@ public class Main_DecisionTree {
     analyzeData(cleanedIris, irisSchema);
     // Prepare for Machine Learning.
 
-
   }
 
   private static Dataset<Row> cleanseData(Dataset<Row> iris, StructType irisSchema) {
@@ -75,10 +74,23 @@ public class Main_DecisionTree {
     return irisCleansed;
   }
 
+  /**
+   * <p>
+   * We are choosing SPECIES as our 'target' variable - the variable we are going to compare other
+   * variables (features) against, to figure out if we have correlations and how significant they
+   * are.
+   * </p>
+   * <p>
+   * In order to make correlations against SPECIES field, we need to it to be in some sort of integer
+   * format. So we are going to use a StringIndexer, to map SPECIES to IND_SPECIES, which will be the
+   * indexing/referencing column we use, for correlation work.
+   * </p>
+   *
+   * @param cleanedIris
+   * @param irisSchema
+   */
   private static void analyzeData(Dataset<Row> cleanedIris, StructType irisSchema) {
-    //@TODO: Need a refresher on this one. I can't remember what we are doing here.
-    // If I was to try to guess/recall, it would be... that we are... Declaring that the field,
-    // named 'SPECIES', has an indexed alias name that can be referenced - 'IND_SPECIES'.
+
     final StringIndexer indexer = new StringIndexer()
         .setInputCol("SPECIES")
         .setOutputCol("IND_SPECIES");
