@@ -10,8 +10,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.ml.feature.StringIndexer;
 import org.apache.spark.ml.feature.StringIndexerModel;
+import org.apache.spark.ml.linalg.Vectors;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -53,9 +55,12 @@ public class Main_DecisionTree {
     // Cleanse the data
     final Dataset<Row> cleanedIris = cleanseData(iris, irisSchema);
     // Analyze the data
-    analyzeData(cleanedIris, irisSchema);
+    final Dataset<Row> indexedIris = analyzeData(cleanedIris, irisSchema);
     // Prepare for Machine Learning.
-    //@TODO: Stopped here
+    final MachineLearningData machineLearningData = prepareForMachineLearning(indexedIris);
+    // Perform Machine Learning.
+    performMachineLearning(machineLearningData);
+
   }
 
   /**
@@ -94,7 +99,7 @@ public class Main_DecisionTree {
    * @param cleanedIris the dataframe we cleaned and want to analyze
    * @param irisSchema  the schema we can use to get the names for
    */
-  private static void analyzeData(Dataset<Row> cleanedIris, StructType irisSchema) {
+  private static Dataset<Row> analyzeData(Dataset<Row> cleanedIris, StructType irisSchema) {
 
     final Dataset<Row> indexedIris = addAnIndexColumn(cleanedIris);
 
@@ -109,6 +114,8 @@ public class Main_DecisionTree {
 
           System.out.println(info.concat(String.valueOf(fieldsCorrelationToIndex)));
         });
+
+    return indexedIris;
   }
 
   /**
@@ -134,4 +141,44 @@ public class Main_DecisionTree {
     return indexedIris;
   }
 
+  private static MachineLearningData prepareForMachineLearning(Dataset<Row> indexedIris) {
+    final JavaRDD<Row> indexRepartitioned = indexedIris.toJavaRDD().repartition(2);
+
+    final JavaRDD<LabeledPoint> dataReadyToBeSplit = indexRepartitioned.map(row ->
+        new LabeledPoint(row.getDouble(5),
+            Vectors.dense(row.getDouble(0),
+                row.getDouble(1),
+                row.getDouble(2),
+                row.getDouble(3))));
+
+    final Dataset<Row> featuresAndLabels = sparkSession
+        .createDataFrame(dataReadyToBeSplit, LabeledPoint.class);
+
+    System.out.println("Data with the Label Points");
+    featuresAndLabels.show();
+
+    final Dataset<Row>[] trainingAndTestDataSplit = featuresAndLabels
+        .randomSplit(new double[]{0.7, 0.3});
+
+    final Dataset<Row> trainingData = trainingAndTestDataSplit[0];
+    final Dataset<Row> testingData = trainingAndTestDataSplit[1];
+    return new MachineLearningData(trainingData, testingData);
+
+  }
+
+  private static void performMachineLearning(MachineLearningData machineLearningData) {
+      //@TODO: Left off here
+  }
+
+  public static class MachineLearningData {
+
+    public final Dataset<Row> trainingData;
+    public final Dataset<Row> testingData;
+
+    public MachineLearningData(Dataset<Row> trainingData,
+        Dataset<Row> testingData) {
+      this.trainingData = trainingData;
+      this.testingData = testingData;
+    }
+  }
 }
