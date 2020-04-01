@@ -10,6 +10,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.ml.classification.DecisionTreeClassifier;
+import org.apache.spark.ml.feature.IndexToString;
 import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.ml.feature.StringIndexer;
 import org.apache.spark.ml.feature.StringIndexerModel;
@@ -54,12 +56,14 @@ public class Main_DecisionTree {
 
     // Cleanse the data
     final Dataset<Row> cleanedIris = cleanseData(iris, irisSchema);
+    // Create an Index for the SPECIES field.
+    final StringIndexerModel stringIndexedModel = createModelFromCleanedData(cleanedIris);
     // Analyze the data
-    final Dataset<Row> indexedIris = analyzeData(cleanedIris, irisSchema);
+    final Dataset<Row> indexedIris = analyzeData(cleanedIris, irisSchema, stringIndexedModel);
     // Prepare for Machine Learning.
     final MachineLearningData machineLearningData = prepareForMachineLearning(indexedIris);
     // Perform Machine Learning.
-    performMachineLearning(machineLearningData);
+    performMachineLearning(machineLearningData, stringIndexedModel);
 
   }
 
@@ -92,6 +96,23 @@ public class Main_DecisionTree {
   }
 
   /**
+   * In order to make correlations against SPECIES field, we need the field to be in a numeric form.
+   * So we are going to use a StringIndexer, to map SPECIES to IND_SPECIES, which will be the
+   * numeric index column we can use, for correlation work.
+   *
+   * @param cleanedIris data that we will be creating a Model from
+   * @return the model we can use to transform the data with and we can eventually use to predict
+   * off of the labels from.
+   */
+  private static StringIndexerModel createModelFromCleanedData(Dataset<Row> cleanedIris) {
+    final StringIndexer indexer = new StringIndexer()
+        .setInputCol("SPECIES")
+        .setOutputCol("IND_SPECIES");
+
+    return indexer.fit(cleanedIris);
+  }
+
+  /**
    * We are choosing SPECIES as our 'target' variable - the variable we are going to compare other
    * variables (features) against, to figure out if we have correlations and how significant they
    * are.
@@ -99,9 +120,10 @@ public class Main_DecisionTree {
    * @param cleanedIris the dataframe we cleaned and want to analyze
    * @param irisSchema  the schema we can use to get the names for
    */
-  private static Dataset<Row> analyzeData(Dataset<Row> cleanedIris, StructType irisSchema) {
+  private static Dataset<Row> analyzeData(Dataset<Row> cleanedIris, StructType irisSchema,
+      StringIndexerModel stringIndexedModel) {
 
-    final Dataset<Row> indexedIris = addAnIndexColumn(cleanedIris);
+    final Dataset<Row> indexedIris = addAnIndexColumn(cleanedIris, stringIndexedModel);
 
     System.out.println("Correlation between feature variable fields and the target variable field");
     // Perform Correlation Analysis
@@ -118,21 +140,15 @@ public class Main_DecisionTree {
     return indexedIris;
   }
 
+
   /**
-   * In order to make correlations against SPECIES field, we need the field to be in a numeric form.
-   * So we are going to use a StringIndexer, to map SPECIES to IND_SPECIES, which will be the
-   * numeric index column we can use, for correlation work.
-   *
    * @param cleanedIris the data frame we want the additional numeric index on
    * @return the new data frame with the additional numeric index
    */
-  private static Dataset<Row> addAnIndexColumn(Dataset<Row> cleanedIris) {
-    final StringIndexer indexer = new StringIndexer()
-        .setInputCol("SPECIES")
-        .setOutputCol("IND_SPECIES");
+  private static Dataset<Row> addAnIndexColumn(Dataset<Row> cleanedIris,
+      StringIndexerModel stringIndexedModel) {
 
-    final StringIndexerModel siModel = indexer.fit(cleanedIris);
-    final Dataset<Row> indexedIris = siModel.transform(cleanedIris);
+    final Dataset<Row> indexedIris = stringIndexedModel.transform(cleanedIris);
 
     System.out
         .println("The Species Column, it's numeric index value, and the amount of rows out there");
@@ -166,8 +182,20 @@ public class Main_DecisionTree {
 
   }
 
-  private static void performMachineLearning(MachineLearningData machineLearningData) {
-      //@TODO: Left off here
+  private static void performMachineLearning(MachineLearningData machineLearningData,
+      StringIndexerModel model) {
+    // Train a decision tree
+    final DecisionTreeClassifier decisionTree = new DecisionTreeClassifier()
+        .setLabelCol("label")
+        .setFeaturesCol("features");
+
+    // Convert indexed labels back to original labels.
+    final IndexToString labelConverter = new IndexToString()
+        .setInputCol("label")
+        .setOutputCol("labelStr")
+        .setLabels(model.labels());
+    //@TOOD: Here
+
   }
 
   public static class MachineLearningData {
