@@ -10,6 +10,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.ml.classification.DecisionTreeClassificationModel;
 import org.apache.spark.ml.classification.DecisionTreeClassifier;
 import org.apache.spark.ml.feature.IndexToString;
 import org.apache.spark.ml.feature.LabeledPoint;
@@ -194,7 +195,29 @@ public class Main_DecisionTree {
         .setInputCol("label")
         .setOutputCol("labelStr")
         .setLabels(model.labels());
-    //@TOOD: Here
+
+    final IndexToString predConverter = new IndexToString()
+        .setInputCol("prediction")
+        .setOutputCol("predictionStr")
+        .setLabels(model.labels());
+
+    final DecisionTreeClassificationModel decisionTreeModel = decisionTree
+        .fit(machineLearningData.trainingData);
+
+    // Predict on test data
+    final Dataset<Row> rawPredictions = decisionTreeModel
+        .transform(machineLearningData.testingData);
+
+    final Dataset<Row> predictions = predConverter
+        .transform(labelConverter.transform(rawPredictions));
+
+    // View Results
+    System.out.println("Result sample:");
+    predictions.select("labelStr", "predictionStr", "features").show();
+
+    //Accuracy computation
+
+    // Might need to keep the program running
 
   }
 
