@@ -12,6 +12,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.ml.classification.DecisionTreeClassificationModel;
 import org.apache.spark.ml.classification.DecisionTreeClassifier;
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
 import org.apache.spark.ml.feature.IndexToString;
 import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.ml.feature.StringIndexer;
@@ -215,10 +216,16 @@ public class Main_DecisionTree {
     System.out.println("Result sample:");
     predictions.select("labelStr", "predictionStr", "features").show();
 
+    // confusion matrix
+    predictions.groupBy(col("labelStr"), col("predictionStr")).count().show();
+
     //Accuracy computation
-
-    // Might need to keep the program running
-
+    final double accuracy = new MulticlassClassificationEvaluator()
+        .setLabelCol("label")
+        .setPredictionCol("prediction")
+        .setMetricName("accuracy")
+        .evaluate(predictions);
+    System.out.println("Accuracy = " + Math.round(accuracy * 100) + " %");
   }
 
   public static class MachineLearningData {
