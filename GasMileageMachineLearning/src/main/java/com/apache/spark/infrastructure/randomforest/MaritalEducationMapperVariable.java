@@ -8,11 +8,11 @@ import static com.apache.spark.domain.randomforest.Bank.LOAN;
 import static com.apache.spark.domain.randomforest.Bank.MARITAL;
 import static com.apache.spark.domain.randomforest.Bank.OUTCOME;
 
-import com.apache.spark.domain.randomforest.BankIndicatorMapper;
+import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 
-public class IndicatorMapper implements BankIndicatorMapper<Row> {
+public class MaritalEducationMapperVariable implements BankVariableIndicatorMapper<Row> {
 
   /**
    * We need to massage the data to be able to process it in Machine Learning. So we are creating

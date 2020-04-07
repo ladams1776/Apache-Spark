@@ -5,14 +5,13 @@ import static org.apache.log4j.Level.ERROR;
 import static org.apache.log4j.Logger.getLogger;
 import static org.apache.spark.sql.functions.col;
 
-import com.apache.spark.domain.randomforest.Bank;
-import com.apache.spark.domain.randomforest.BankIndicatorMapper;
+import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
 import com.apache.spark.domain.randomforest.BankLabelMapper;
 import com.apache.spark.domain.randomforest.OutcomeCorrelationReport;
 import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.randomforest.CorrelationReport;
-import com.apache.spark.infrastructure.randomforest.IndicatorMapper;
+import com.apache.spark.infrastructure.randomforest.MaritalEducationMapperVariable;
 import com.apache.spark.infrastructure.randomforest.LabeledPointMapper;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
@@ -33,7 +32,7 @@ public class Main_RandomForest {
 
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
 
-  private final static BankIndicatorMapper<Row> indicatorMapper = new IndicatorMapper();
+  private final static BankVariableIndicatorMapper<Row> indicatorMapper = new MaritalEducationMapperVariable();
   private final static OutcomeCorrelationReport<StructType, Dataset<Row>> correlationReport = new CorrelationReport();
   private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new LabeledPointMapper();
 
