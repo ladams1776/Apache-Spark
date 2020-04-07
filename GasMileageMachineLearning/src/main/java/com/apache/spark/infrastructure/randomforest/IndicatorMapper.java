@@ -1,18 +1,18 @@
 package com.apache.spark.infrastructure.randomforest;
 
+import static com.apache.spark.domain.randomforest.Bank.AGE;
+import static com.apache.spark.domain.randomforest.Bank.BALANCE;
+import static com.apache.spark.domain.randomforest.Bank.DEFAULT;
+import static com.apache.spark.domain.randomforest.Bank.EDUCATION;
+import static com.apache.spark.domain.randomforest.Bank.LOAN;
+import static com.apache.spark.domain.randomforest.Bank.MARITAL;
+import static com.apache.spark.domain.randomforest.Bank.OUTCOME;
+
 import com.apache.spark.domain.randomforest.BankIndicatorMapper;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 
 public class IndicatorMapper implements BankIndicatorMapper<Row> {
-
-  private static final int AGE = 0;
-  private static final int MARITAL = 2;
-  private static final int EDUCATION = 3;
-  private static final int DEFAULT = 4;
-  private static final int BALANCE = 5;
-  private static final int LOAN = 7;
-  private static final int OUTCOME = 16;
 
   /**
    * We need to massage the data to be able to process it in Machine Learning. So we are creating

@@ -1,6 +1,6 @@
 package com.apache.spark.infrastructure.reports;
 
-import static org.spark_project.jetty.util.StringUtil.valueOf;
+import static java.lang.String.valueOf;
 
 import com.apache.spark.domain.reports.CorrelationMPGReport;
 import com.apache.spark.infrastructure.reports.filters.EverythingButStringTypesFilter;
