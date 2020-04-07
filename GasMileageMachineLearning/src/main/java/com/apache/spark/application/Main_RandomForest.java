@@ -13,6 +13,7 @@ import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.randomforest.CorrelationReport;
 import com.apache.spark.infrastructure.randomforest.MaritalEducationMapperVariable;
 import com.apache.spark.infrastructure.randomforest.LabeledPointMapper;
+import com.apache.spark.infrastructure.randomforest.NotSureYetMapperVariable;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 import org.apache.spark.ml.classification.RandomForestClassifier;
@@ -32,7 +33,7 @@ public class Main_RandomForest {
 
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
 
-  private final static BankVariableIndicatorMapper<Row> indicatorMapper = new MaritalEducationMapperVariable();
+  private final static BankVariableIndicatorMapper<Row> indicatorMapper = new NotSureYetMapperVariable();
   private final static OutcomeCorrelationReport<StructType, Dataset<Row>> correlationReport = new CorrelationReport();
   private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new LabeledPointMapper();
 
