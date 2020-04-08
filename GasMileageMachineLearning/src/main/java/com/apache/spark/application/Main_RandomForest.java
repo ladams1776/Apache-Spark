@@ -1,19 +1,19 @@
 package com.apache.spark.application;
 
-import static com.apache.spark.domain.randomforest.Bank.SCHEMA;
 import static org.apache.log4j.Level.ERROR;
 import static org.apache.log4j.Logger.getLogger;
 import static org.apache.spark.sql.functions.col;
 
-import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
 import com.apache.spark.domain.randomforest.BankLabelMapper;
+import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
 import com.apache.spark.domain.randomforest.OutcomeCorrelationReport;
 import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.randomforest.CorrelationReport;
-import com.apache.spark.infrastructure.randomforest.MaritalEducationMapperVariable;
-import com.apache.spark.infrastructure.randomforest.LabeledPointMapper;
-import com.apache.spark.infrastructure.randomforest.NotSureYetMapperVariable;
+import com.apache.spark.infrastructure.randomforest.fullVariableMapper.FullVariableLabelMapper;
+import com.apache.spark.infrastructure.randomforest.fullVariableMapper.FullVariableMapper;
+import com.apache.spark.infrastructure.randomforest.maritalEducationMapper.MaritalEducationLabelMapper;
+import com.apache.spark.infrastructure.randomforest.maritalEducationMapper.MaritalEducationVariableMapper;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 import org.apache.spark.ml.classification.RandomForestClassifier;
@@ -33,9 +33,14 @@ public class Main_RandomForest {
 
   private final static SparkConnection sparkConnection = new SparkConnectionBuilder().build();
 
-  private final static BankVariableIndicatorMapper<Row> indicatorMapper = new NotSureYetMapperVariable();
+  // @TODO: can uncomment these and comment out the next 2 to get different results.
+//  private final static BankVariableIndicatorMapper<Row, StructType> indicatorMapper = new MaritalEducationVariableMapper();
+//  private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new MaritalEducationLabelMapper();
+
+  private final static BankVariableIndicatorMapper<Row, StructType> indicatorMapper = new FullVariableMapper();
+  private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new FullVariableLabelMapper();
+
   private final static OutcomeCorrelationReport<StructType, Dataset<Row>> correlationReport = new CorrelationReport();
-  private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new LabeledPointMapper();
 
   public static void main(String[] args) {
     getLogger("org").setLevel(ERROR);
@@ -64,15 +69,14 @@ public class Main_RandomForest {
     final JavaRDD<Row> indicatedVariables = paritionedBanks.map(row -> indicatorMapper.map(row));
 
     // Change RDD back to DFR
-    final Dataset<Row> cleansedBanks = sparkSession.createDataFrame(indicatedVariables, SCHEMA);
+    final Dataset<Row> cleansedBanks = sparkSession.createDataFrame(indicatedVariables, indicatorMapper.getSchema());
     System.out
         .println("Transformed/Cleansed data - applying indicator variables to the Bank Schema");
     cleansedBanks.show(10);
     cleansedBanks.printSchema();
 
     // ******************** Analyze Data ************************************* //
-    //@TODO: #1. According to the report, these are not good variables to use, we should pick through the data and find better ones
-    correlationReport.print(SCHEMA, cleansedBanks);
+    correlationReport.print(indicatorMapper.getSchema(), cleansedBanks);
 
     // ******************** Prepare for Machine Learning ********************* //
     // Convert DF to labeled Point Structure. Reuse variable, no need to make another name
@@ -151,7 +155,6 @@ public class Main_RandomForest {
         .setMetricName("accuracy")
         .evaluate(predictions);
 
-    //@TODO: #2 After we update the variables we are choosing, we should be able to find better accuracy here.
     System.out.println("Accuracy = " + Math.round(accuracy * 100) + "%");
 
   }

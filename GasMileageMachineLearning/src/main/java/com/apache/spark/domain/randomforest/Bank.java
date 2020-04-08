@@ -1,9 +1,5 @@
 package com.apache.spark.domain.randomforest;
 
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
-
 public class Bank {
 
   public static final int AGE = 0;
@@ -17,24 +13,10 @@ public class Bank {
   public static final int CONTACT = 8;
   public static final int DAY = 9;
   public static final int MONTH = 10;
+
+  public static final int CAMPAIGN = 12;
+  public static final int PDAYS = 13;
+  public static final int PREVIOUS = 14;
   public static final int PREVIOUS_OUTCOME = 15;
   public static final int OUTCOME = 16;
-
-
-  public static final StructType SCHEMA = DataTypes.createStructType(new StructField[]{
-      DataTypes.createStructField("OUTCOME", DataTypes.DoubleType, false),
-      DataTypes.createStructField("IS_PREV_FAILURE", DataTypes.DoubleType, false),
-      DataTypes.createStructField("IS_PREV_OTHER", DataTypes.DoubleType, false),
-      DataTypes.createStructField("IS_PREV_UNKNOWN", DataTypes.DoubleType, false),
-      DataTypes.createStructField("AGE", DataTypes.DoubleType, false),
-      DataTypes.createStructField("SINGLE", DataTypes.DoubleType, false),
-      DataTypes.createStructField("MARRIED", DataTypes.DoubleType, false),
-      DataTypes.createStructField("DIVORCED", DataTypes.DoubleType, false),
-      DataTypes.createStructField("PRIMARY", DataTypes.DoubleType, false),
-      DataTypes.createStructField("SECONDARY", DataTypes.DoubleType, false),
-      DataTypes.createStructField("TERTIARY", DataTypes.DoubleType, false),
-      DataTypes.createStructField("DEFAULT", DataTypes.DoubleType, false),
-      DataTypes.createStructField("BALANCE", DataTypes.DoubleType, false),
-      DataTypes.createStructField("LOAN", DataTypes.DoubleType, false),
-  });
 }

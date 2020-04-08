@@ -1,4 +1,4 @@
-package com.apache.spark.infrastructure.randomforest;
+package com.apache.spark.infrastructure.randomforest.maritalEducationMapper;
 
 import static com.apache.spark.domain.randomforest.Bank.AGE;
 import static com.apache.spark.domain.randomforest.Bank.BALANCE;
@@ -11,8 +11,30 @@ import static com.apache.spark.domain.randomforest.Bank.OUTCOME;
 import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
-public class MaritalEducationMapperVariable implements BankVariableIndicatorMapper<Row> {
+/**
+ * First mapper I used to try to do correlation analysis on. It was not accurate enough.
+ */
+public class MaritalEducationVariableMapper implements BankVariableIndicatorMapper<Row, StructType> {
+
+  public static final StructType CORRESPONDING_SCHEMA = DataTypes
+      .createStructType(new StructField[]{
+          DataTypes.createStructField("OUTCOME", DataTypes.DoubleType, false),
+          DataTypes.createStructField("AGE", DataTypes.DoubleType, false),
+          DataTypes.createStructField("SINGLE", DataTypes.DoubleType, false),
+          DataTypes.createStructField("MARRIED", DataTypes.DoubleType, false),
+          DataTypes.createStructField("DIVORCED", DataTypes.DoubleType, false),
+          DataTypes.createStructField("PRIMARY", DataTypes.DoubleType, false),
+          DataTypes.createStructField("SECONDARY", DataTypes.DoubleType, false),
+          DataTypes.createStructField("TERTIARY", DataTypes.DoubleType, false),
+          DataTypes.createStructField("DEFAULT", DataTypes.DoubleType, false),
+          DataTypes.createStructField("BALANCE", DataTypes.DoubleType, false),
+          DataTypes.createStructField("LOAN", DataTypes.DoubleType, false),
+      });
+
 
   /**
    * We need to massage the data to be able to process it in Machine Learning. So we are creating
@@ -24,11 +46,14 @@ public class MaritalEducationMapperVariable implements BankVariableIndicatorMapp
    */
   @Override
   public Row map(Row row) throws Exception {
-    // Convert age to double
-    final Double age = Double.valueOf(row.getString(AGE));
 
+    // Target/Label variable:
     // convert outcome to double
     final double outcome = row.getString(OUTCOME).equals("yes") ? 1.0 : 0.0;
+
+    // Feature variables:
+    // Convert age to double
+    final Double age = Double.valueOf(row.getString(AGE));
 
     // create indicator variable for marital status
     final double single = row.getString(MARITAL).equals("single") ? 1.0 : 0.0;
@@ -52,5 +77,10 @@ public class MaritalEducationMapperVariable implements BankVariableIndicatorMapp
     return RowFactory
         .create(outcome, age, single, married, divorced, primary, secondary, tertiary, isDefault,
             balance, loan);
+  }
+
+  @Override
+  public StructType getSchema() {
+    return CORRESPONDING_SCHEMA;
   }
 }
