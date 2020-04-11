@@ -35,7 +35,7 @@ public class Main_DecisionTree {
   public static void main(String[] args) {
     Logger.getLogger("org").setLevel(Level.ERROR);
     Logger.getLogger("akka").setLevel(Level.ERROR);
-    System.out.println("is Working");
+    System.out.println("DecisionTree");
 
     final Dataset<Row> iris = sparkSession.read()
         .option("header", "true")

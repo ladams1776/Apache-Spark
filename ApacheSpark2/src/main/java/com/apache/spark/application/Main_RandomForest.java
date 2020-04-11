@@ -45,6 +45,7 @@ public class Main_RandomForest {
   public static void main(String[] args) {
     getLogger("org").setLevel(ERROR);
     getLogger("akka").setLevel(ERROR);
+    System.out.println("RandomForest");
 
     // ******************** Setup ************************************* //
     final SparkSession sparkSession = sparkConnection.getSparkSession();

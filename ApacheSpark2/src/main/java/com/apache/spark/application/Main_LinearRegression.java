@@ -39,7 +39,7 @@ public class Main_LinearRegression {
     getLogger("akka").setLevel(ERROR);
 
     // ******************** Setup ************************************* //
-    System.out.println("Working");
+    System.out.println("LinearRegression");
     final JavaSparkContext spContext = sparkConnection.getSpContext();
     final SparkSession sparkSession = sparkConnection.getSparkSession();
 
