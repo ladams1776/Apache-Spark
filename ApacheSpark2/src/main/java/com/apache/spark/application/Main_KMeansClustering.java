@@ -6,6 +6,9 @@ import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 public class Main_KMeansClustering {
     private final static SparkConnection sparkConnection = new SparkConnection.SparkConnectionBuilder().build();
@@ -24,6 +27,16 @@ public class Main_KMeansClustering {
         autoDF.printSchema();
 
         // ******************** Cleanse Data ************************************* //
+        StructType autoSchema = DataTypes
+                .createStructType(new StructField[]{
+                        DataTypes.createStructField("DOORS", DataTypes.DoubleType, false),
+                        DataTypes.createStructField("BODY", DataTypes.DoubleType, false),
+                        DataTypes.createStructField("HP", DataTypes.DoubleType, false),
+                        DataTypes.createStructField("RPM", DataTypes.DoubleType, false),
+                        DataTypes.createStructField("MPG", DataTypes.DoubleType, false)
+                });
+
+
 
     }
 }
