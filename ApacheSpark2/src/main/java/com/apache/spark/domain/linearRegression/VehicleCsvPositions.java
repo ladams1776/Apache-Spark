@@ -1,4 +1,4 @@
-package com.apache.spark.domain;
+package com.apache.spark.domain.linearRegression;
 
 /**
  * Columns that correspond with auto-miles-per-gallon.csv

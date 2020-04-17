@@ -1,6 +1,6 @@
 package com.apache.spark.domain.randomforest;
 
-public class Bank {
+public class BankPositions {
 
   public static final int AGE = 0;
   public static final int JOB = 1;

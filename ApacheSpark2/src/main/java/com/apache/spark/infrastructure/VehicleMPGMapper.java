@@ -1,18 +1,16 @@
 package com.apache.spark.infrastructure;
 
 
-import static com.apache.spark.domain.VehicleCsvPositions.ACCELERATION;
-import static com.apache.spark.domain.VehicleCsvPositions.CYLINDERS;
-import static com.apache.spark.domain.VehicleCsvPositions.DISPLACEMENT;
-import static com.apache.spark.domain.VehicleCsvPositions.HORSE_POWER;
-import static com.apache.spark.domain.VehicleCsvPositions.MODELYEAR;
-import static com.apache.spark.domain.VehicleCsvPositions.MPG;
-import static com.apache.spark.domain.VehicleCsvPositions.NAME;
-import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.ACCELERATION;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.CYLINDERS;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.DISPLACEMENT;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.HORSE_POWER;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.MODELYEAR;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.MPG;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.NAME;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.WEIGHT;
 import static java.lang.Double.valueOf;
 
-import java.util.function.BiFunction;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Row;

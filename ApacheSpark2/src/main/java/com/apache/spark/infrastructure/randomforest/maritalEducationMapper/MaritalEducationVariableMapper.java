@@ -1,14 +1,14 @@
 package com.apache.spark.infrastructure.randomforest.maritalEducationMapper;
 
-import static com.apache.spark.domain.randomforest.Bank.AGE;
-import static com.apache.spark.domain.randomforest.Bank.BALANCE;
-import static com.apache.spark.domain.randomforest.Bank.DEFAULT;
-import static com.apache.spark.domain.randomforest.Bank.EDUCATION;
-import static com.apache.spark.domain.randomforest.Bank.LOAN;
-import static com.apache.spark.domain.randomforest.Bank.MARITAL;
-import static com.apache.spark.domain.randomforest.Bank.OUTCOME;
+import static com.apache.spark.domain.randomforest.BankPositions.AGE;
+import static com.apache.spark.domain.randomforest.BankPositions.BALANCE;
+import static com.apache.spark.domain.randomforest.BankPositions.DEFAULT;
+import static com.apache.spark.domain.randomforest.BankPositions.EDUCATION;
+import static com.apache.spark.domain.randomforest.BankPositions.LOAN;
+import static com.apache.spark.domain.randomforest.BankPositions.MARITAL;
+import static com.apache.spark.domain.randomforest.BankPositions.OUTCOME;
 
-import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
+import com.apache.spark.domain.shared.VariableIndicatorMapper;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.types.DataTypes;
@@ -18,7 +18,7 @@ import org.apache.spark.sql.types.StructType;
 /**
  * First mapper I used to try to do correlation analysis on. It was not accurate enough.
  */
-public class MaritalEducationVariableMapper implements BankVariableIndicatorMapper<Row, StructType> {
+public class MaritalEducationVariableMapper implements VariableIndicatorMapper<Row, StructType> {
 
   public static final StructType CORRESPONDING_SCHEMA = DataTypes
       .createStructType(new StructField[]{

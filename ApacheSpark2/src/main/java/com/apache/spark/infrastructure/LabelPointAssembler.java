@@ -1,9 +1,9 @@
 package com.apache.spark.infrastructure;
 
-import static com.apache.spark.domain.VehicleCsvPositions.ACCELERATION;
-import static com.apache.spark.domain.VehicleCsvPositions.DISPLACEMENT;
-import static com.apache.spark.domain.VehicleCsvPositions.MPG;
-import static com.apache.spark.domain.VehicleCsvPositions.WEIGHT;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.ACCELERATION;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.DISPLACEMENT;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.MPG;
+import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.WEIGHT;
 
 import java.util.function.Function;
 import org.apache.spark.api.java.JavaRDD;

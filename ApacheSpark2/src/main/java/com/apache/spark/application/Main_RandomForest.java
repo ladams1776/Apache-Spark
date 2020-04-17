@@ -4,16 +4,14 @@ import static org.apache.log4j.Level.ERROR;
 import static org.apache.log4j.Logger.getLogger;
 import static org.apache.spark.sql.functions.col;
 
-import com.apache.spark.domain.randomforest.BankLabelMapper;
-import com.apache.spark.domain.randomforest.BankVariableIndicatorMapper;
-import com.apache.spark.domain.randomforest.OutcomeCorrelationReport;
+import com.apache.spark.domain.shared.LabelMapper;
+import com.apache.spark.domain.shared.VariableIndicatorMapper;
+import com.apache.spark.domain.shared.OutcomeCorrelationReport;
 import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
 import com.apache.spark.infrastructure.randomforest.CorrelationReport;
 import com.apache.spark.infrastructure.randomforest.fullVariableMapper.FullVariableLabelMapper;
 import com.apache.spark.infrastructure.randomforest.fullVariableMapper.FullVariableMapper;
-import com.apache.spark.infrastructure.randomforest.maritalEducationMapper.MaritalEducationLabelMapper;
-import com.apache.spark.infrastructure.randomforest.maritalEducationMapper.MaritalEducationVariableMapper;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 import org.apache.spark.ml.classification.RandomForestClassifier;
@@ -37,8 +35,8 @@ public class Main_RandomForest {
 //  private final static BankVariableIndicatorMapper<Row, StructType> indicatorMapper = new MaritalEducationVariableMapper();
 //  private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new MaritalEducationLabelMapper();
 
-  private final static BankVariableIndicatorMapper<Row, StructType> indicatorMapper = new FullVariableMapper();
-  private final static BankLabelMapper<Row, LabeledPoint> bankLabelMapper = new FullVariableLabelMapper();
+  private final static VariableIndicatorMapper<Row, StructType> indicatorMapper = new FullVariableMapper();
+  private final static LabelMapper<Row, LabeledPoint> LABEL_MAPPER = new FullVariableLabelMapper();
 
   private final static OutcomeCorrelationReport<StructType, Dataset<Row>> correlationReport = new CorrelationReport();
 
@@ -77,13 +75,13 @@ public class Main_RandomForest {
     cleansedBanks.printSchema();
 
     // ******************** Analyze Data ************************************* //
-    correlationReport.print(indicatorMapper.getSchema(), cleansedBanks);
+    correlationReport.apply(indicatorMapper.getSchema(), cleansedBanks);
 
     // ******************** Prepare for Machine Learning ********************* //
     // Convert DF to labeled Point Structure. Reuse variable, no need to make another name
     paritionedBanks = cleansedBanks.toJavaRDD().repartition(2);
 
-    final JavaRDD<LabeledPoint> labeledBanks = paritionedBanks.map(row -> bankLabelMapper.map(row));
+    final JavaRDD<LabeledPoint> labeledBanks = paritionedBanks.map(row -> LABEL_MAPPER.map(row));
 
     final Dataset<Row> bankLabels = sparkSession.createDataFrame(labeledBanks, LabeledPoint.class);
     System.out.println("Transformed Label and Features: ");

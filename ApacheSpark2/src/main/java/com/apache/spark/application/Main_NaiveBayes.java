@@ -75,7 +75,6 @@ public class Main_NaiveBayes {
                 .setInputCol("words")
                 .setOutputCol("rawFeatures");
 
-        //@TODO: Rewatch the video from here forward.
         final IDF idf = new IDF()
                 .setInputCol("rawFeatures")
                 .setOutputCol("features");

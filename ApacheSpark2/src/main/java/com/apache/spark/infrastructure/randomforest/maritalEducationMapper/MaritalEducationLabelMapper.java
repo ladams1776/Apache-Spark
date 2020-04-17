@@ -1,11 +1,11 @@
 package com.apache.spark.infrastructure.randomforest.maritalEducationMapper;
 
-import com.apache.spark.domain.randomforest.BankLabelMapper;
+import com.apache.spark.domain.shared.LabelMapper;
 import org.apache.spark.ml.feature.LabeledPoint;
 import org.apache.spark.ml.linalg.Vectors;
 import org.apache.spark.sql.Row;
 
-public class MaritalEducationLabelMapper implements BankLabelMapper<Row, LabeledPoint> {
+public class MaritalEducationLabelMapper implements LabelMapper<Row, LabeledPoint> {
 
   /**
    * Needs to have the same count of rows as the MaritalEducationMapperVariable.
