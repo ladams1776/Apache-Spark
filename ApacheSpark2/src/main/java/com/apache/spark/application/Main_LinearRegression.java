@@ -1,10 +1,10 @@
 package com.apache.spark.application;
 
 import com.apache.spark.domain.shared.OutcomeCorrelationReport;
-import com.apache.spark.infrastructure.LabelPointAssembler;
+import com.apache.spark.infrastructure.linearRegression.LabelPointAssembler;
 import com.apache.spark.infrastructure.SparkConnection;
 import com.apache.spark.infrastructure.SparkConnection.SparkConnectionBuilder;
-import com.apache.spark.infrastructure.VehicleMPGMapper;
+import com.apache.spark.infrastructure.linearRegression.VehicleMPGMapper;
 import com.apache.spark.infrastructure.reports.SystemPrintCorrelationMPGReport;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;

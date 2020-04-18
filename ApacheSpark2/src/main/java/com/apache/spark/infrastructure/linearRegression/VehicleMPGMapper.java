@@ -1,4 +1,4 @@
-package com.apache.spark.infrastructure;
+package com.apache.spark.infrastructure.linearRegression;
 
 
 import static com.apache.spark.domain.linearRegression.VehicleCsvPositions.ACCELERATION;
