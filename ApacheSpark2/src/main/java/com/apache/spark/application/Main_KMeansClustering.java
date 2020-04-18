@@ -12,6 +12,9 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
+import static org.apache.spark.sql.functions.avg;
+import static org.apache.spark.sql.functions.stddev;
+
 public class Main_KMeansClustering {
     private final static SparkConnection sparkConnection = new SparkConnection.SparkConnectionBuilder().build();
     private final static SparkSession sparkSession = sparkConnection.getSparkSession();
@@ -32,7 +35,25 @@ public class Main_KMeansClustering {
         // ******************** Cleanse Data ************************************* //
         final Dataset<Row> cleansedCarData = carCleaner.apply(autoDF);
 
+        final Row autoMeanRow = cleansedCarData.agg(avg(cleansedCarData.col("DOORS")),
+                avg(cleansedCarData.col("BODY")),
+                avg(cleansedCarData.col("HP")),
+                avg(cleansedCarData.col("RPM")),
+                avg(cleansedCarData.col("MPG")))
+                .toJavaRDD()
+                .takeOrdered(1)
+                .get(0);
 
 
+        final Row autoStdDev = cleansedCarData.agg(stddev(cleansedCarData.col("DOORS")),
+                stddev(cleansedCarData.col("BODY")),
+                stddev(cleansedCarData.col("HP")),
+                stddev(cleansedCarData.col("RPM")),
+                stddev(cleansedCarData.col("MPG")))
+                .toJavaRDD()
+                .takeOrdered(1)
+                .get(0);
+
+        
     }
 }
