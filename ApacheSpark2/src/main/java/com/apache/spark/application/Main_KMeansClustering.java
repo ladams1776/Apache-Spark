@@ -1,6 +1,8 @@
 package com.apache.spark.application;
 
+import com.apache.spark.domain.shared.CleanseData;
 import com.apache.spark.infrastructure.SparkConnection;
+import com.apache.spark.infrastructure.kmeans.CarCleaner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -13,6 +15,7 @@ import org.apache.spark.sql.types.StructType;
 public class Main_KMeansClustering {
     private final static SparkConnection sparkConnection = new SparkConnection.SparkConnectionBuilder().build();
     private final static SparkSession sparkSession = sparkConnection.getSparkSession();
+    private final static CleanseData<Dataset<Row>> carCleaner = new CarCleaner(sparkSession);
 
     public static void main(String[] args) {
         Logger.getLogger("org").setLevel(Level.ERROR);
@@ -22,19 +25,12 @@ public class Main_KMeansClustering {
         final Dataset<Row> autoDF = sparkSession
                 .read()
                 .option("header", "true")
-                .csv("src/main/resources/auto-miles-per-gallon.csv");
+                .csv("src/main/resources/auto-data.csv");
         autoDF.show(10);
         autoDF.printSchema();
 
         // ******************** Cleanse Data ************************************* //
-        StructType autoSchema = DataTypes
-                .createStructType(new StructField[]{
-                        DataTypes.createStructField("DOORS", DataTypes.DoubleType, false),
-                        DataTypes.createStructField("BODY", DataTypes.DoubleType, false),
-                        DataTypes.createStructField("HP", DataTypes.DoubleType, false),
-                        DataTypes.createStructField("RPM", DataTypes.DoubleType, false),
-                        DataTypes.createStructField("MPG", DataTypes.DoubleType, false)
-                });
+        final Dataset<Row> cleansedCarData = carCleaner.apply(autoDF);
 
 
 
